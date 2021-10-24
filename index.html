@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate TXT File In JavaScript</title>
+  <style type="text/css">
+  .body {
+	        position:relative;
+	        background-image: radial-gradient(circle,white,lightblue);
+          height:300px;
+          top:100px;
+          width:50%;
+          left:25%;
+          margin:0;
+          border:0;
+          padding:1px;
+          text-align:center;
+        }
+  label {
+    cursor: pointer;
+  }
+  textarea {
+    width: 600px;
+    height: 150px;
+  }
+  .output {
+    position:relative;
+    top: 100px;
+    width: 50%;
+    left: 25%;
+    height: 500px;
+    overflow: auto;
+  }
+  textarea {
+    resize: none;
+    overflow: hidden;
+    min-height: 100px;
+    box-shadow: 1px 1px 1px black,
+                 2px 2px 1px black;
+}
+h1 {
+    text-shadow: 1px 1px 1px blue,
+                 2px 2px 1px blue;
+  font-family: 'Lato', sans-serif;
+  }
+p{
+  font-family: 'Lato', sans-serif;
+}
+body {
+      background-image: linear-gradient(105deg, rgb(31, 216, 253), lightblue);
+    font-family: 'Lato', sans-serif;
+  }
+.submit,button{
+    width: 130px;
+  height: 40px;
+  color: #fff;
+  border-radius: 5px;
+  padding: 10px 25px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+   box-shadow:inset 2px 2px 2px 0px rgba(255,255,255,.5),
+   7px 7px 20px 0px rgba(0,0,0,.1),
+   4px 4px 5px 0px rgba(0,0,0,.1);
+  outline: none;
+    background: rgb(0,172,238);
+background: linear-gradient(0deg, rgba(0,172,238,1) 0%, rgba(2,126,251,1) 100%);
+  width: 130px;
+  height: 40px;
+  line-height: 42px;
+  padding: 0;
+  border: none;
+}
+.submit,button:before {
+  height: 0%;
+  width: 2px;
+}
+.submit,button:hover {
+  box-shadow:  4px 4px 6px 0 rgba(255,255,255,.5),
+              -4px -4px 6px 0 rgba(116, 125, 136, .5), 
+    inset -4px -4px 6px 0 rgba(255,255,255,.2),
+    inset 4px 4px 6px 0 rgba(0, 0, 0, .4);
+}
+#footer{
+    text-align: left;
+    font-family: 'Lato', sans-serif;
+}
+p,h1 {
+    text-align: center;
+    font-family: 'Lato', sans-serif;
+}
+textarea,button,input{
+  display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+  </style>
+
+<link href="styles.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="header">
+	<h1 id="intro">Readable</h1>
+</div>
+
+  <p> Copy your article here:</p>
+
+
+<div>
+      <textarea type="text" id = "subject"></textarea>
+  <br/>
+      <button onclick="analyze()">Submit</button>
+</div>
+
+<div class="body">
+  <p> <br><br>
+    After uploading the data file here, press "solve data", and then submit. <br><br> The hard words in the text will be displayed.
+  </p>
+  <input type="file" onclick="Clear()" name="inputfile" id="inputfile"> 
+  <br/>
+  <br/>
+  <button onclick="Solve()">Solve Data</button>
+  <p id="output"></p>
+</div>
+
+<div class="output">
+  <p id="input"></p> 
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/numjs/0.16.0/numjs.min.js"></script>
+
+<script type="text/javascript"> 
+
+    var myRankedWords = new Map();
+    
+    document.getElementById('inputfile').addEventListener('change', function() { 
+  ///An EventListener is added so that the uploaded file is displayed in the 
+  ///paragraph with id "output".
+    var fr=new FileReader(); 
+    fr.onload=function(){ 
+      document.getElementById('input').textContent = fr.result; 
+    } 
+    fr.readAsText(this.files[0]); 
+  }) 
+
+  ///This clears the content 
+  function Clear() {
+    document.getElementById("output").innerHTML='';
+    document.getElementById("input").innerHTML='';
+  }
+
+  function Solve() {
+    var myLength = 50000;
+    var rank = 1;
+    var content = String(document.getElementById('input').innerHTML);
+    var regex = new RegExp("\\s", "g");
+    var replace = "$";
+    var str = content.replace(regex, replace);
+    var myWords = str.split("$");
+
+    for (i = 0; i < myLength + 4*myLength/100; i++) {
+        var word = myWords[i];
+        word = word.toLowerCase();
+        if (!(word === "#!comment:") && !(word === "1") && !(word === "-") && !(word === "100")) { 
+            if (!myRankedWords.has(word)) {
+                myRankedWords.set(word, rank);
+                rank += 1;
+            }
+        }
+    }
+
+    document.getElementById('output').innerHTML = " " + myRankedWords.size + " words in dataset.";
+  }
+
+  function isCharacterALetter(char) {
+    return (/[a-zA-Z]/).test(char);
+  }
+
+  function analyze() {
+      var str = String(document.getElementById("subject").value);
+      document.getElementById('output').innerHTML = myRankedWords.size;
+      var regex = new RegExp("\\s", "g");
+      var replace = "$";
+      var content = str.replace(regex, replace);
+      var myWords = content.split("$");
+      var cutoff = myRankedWords.size/4;
+      var result = "";
+      var num = 0;
+
+      for (i = 0; i < myWords.length; i++) {
+        var word = myWords[i];
+        var start = 0;
+        var end = word.length;
+        for (j = 0; j < word.length; j++) {
+          if (!isCharacterALetter(word.charAt(j))) {
+            start = j + 1;
+          } else {
+            break;
+          }
+        }
+        for (k = word.length - 1; k > -1; k--) {
+          if (!isCharacterALetter(word.charAt(k))) {
+            end = k;
+          } else {
+            break;
+          }
+        }
+        word = word.substring(start, end);
+        if (myRankedWords.has(word.toLowerCase())) {
+            var rank = myRankedWords.get(word.toLowerCase());
+            if (rank > cutoff) {
+                result  = result + "<br>" + word;
+                num += 1;
+            }
+        } else {
+            result = result + "<br>" + word;
+            num += 1;
+        }
+      }
+
+      document.getElementById('input').innerHTML = result;  
+  }
+
+</script> 
+<div id="footer">
+        Made by: Allan, Davidson, Giyoung, <br></br> Graham, Haojin
+    </div>
+</body>
+</html>
