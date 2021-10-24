@@ -137,6 +137,7 @@ textarea,button,input{
 <script type="text/javascript"> 
 
     var myRankedWords = new Map();
+    var myTranslateWords = new Map();
     
     document.getElementById('inputfile').addEventListener('change', function() { 
   ///An EventListener is added so that the uploaded file is displayed in the 
@@ -154,27 +155,26 @@ textarea,button,input{
     document.getElementById("input").innerHTML='';
   }
 
-  function Solve() {
-    var myLength = 50000;
+  function Solve() { 
+    var myLength = 23000;
     var rank = 1;
     var content = String(document.getElementById('input').innerHTML);
-    var regex = new RegExp("\\s", "g");
-    var replace = "$";
-    var str = content.replace(regex, replace);
-    var myWords = str.split("$");
+    var myWords = content.split(",");
 
-    for (i = 0; i < myLength + 4*myLength/100; i++) {
-        var word = myWords[i];
+    for (i = 0; i < myLength + myLength/100 - 1; i++) {
+        var word = myWords[2*i];
+        var translate = myWords[2*i+1];
         word = word.toLowerCase();
-        if (!(word === "#!comment:") && !(word === "1") && !(word === "-") && !(word === "100")) { 
+        if (!(word === "#!comment:") && !(word === "-") && !(word === "100")) { 
             if (!myRankedWords.has(word)) {
                 myRankedWords.set(word, rank);
+                myTranslateWords.set(word, translate);
                 rank += 1;
             }
         }
     }
 
-    document.getElementById('output').innerHTML = " " + myRankedWords.size + " words in dataset.";
+    document.getElementById('output').innerHTML = myRankedWords.size + " words in the dataset";
   }
 
   function isCharacterALetter(char) {
@@ -212,9 +212,10 @@ textarea,button,input{
         }
         word = word.substring(start, end);
         if (myRankedWords.has(word.toLowerCase())) {
+            var translate = myTranslateWords.get(word.toLowerCase());
             var rank = myRankedWords.get(word.toLowerCase());
             if (rank > cutoff) {
-                result  = result + "<br>" + word;
+                result  = result + "<br>" + word + " translated to: " + translate;
                 num += 1;
             }
         } else {
